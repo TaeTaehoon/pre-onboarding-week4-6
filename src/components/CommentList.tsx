@@ -1,27 +1,20 @@
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { AppDispatch } from "../redux/configureStore";
 
-const data = [
-  {
-    id: 1,
-    profile_url: "https://picsum.photos/id/1/50/50",
-    author: "abc_1",
-    content: "UI 테스트는 어떻게 진행하나요",
-    createdAt: "2020-05-01",
-  },
-  {
-    id: 1,
-    profile_url: "https://picsum.photos/id/1/50/50",
-    author: "abc_1",
-    content: "UI 테스트는 어떻게 진행하나요",
-    createdAt: "2020-05-01",
-  },
-];
+import { initType } from "../redux/slices/mainSlice";
+import { comment } from "../redux/slices/mainSlice";
 
 function CommentList() {
+  const comments = useSelector((state: initType) => state.mainSlice.comments);
+  const dispatch: AppDispatch = useDispatch();
+  console.log(comments);
   return (
     <>
-      {data.map((comment, key) => (
-        <StComment key={key}>
+      {comments.map((comment: comment) => (
+        <StComment key={comment.id}>
           <img src={comment.profile_url} alt="" />
 
           {comment.author}
@@ -41,8 +34,9 @@ function CommentList() {
 }
 
 const StComment = styled.div`
-  padding: 7px 10px;
   text-align: left;
+  font-size: 1.5rem;
+  padding: 7px 10px;
   :nth-of-type(1) {
     border-top: 0.2rem solid black;
   }

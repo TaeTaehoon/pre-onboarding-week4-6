@@ -24,7 +24,7 @@ function Form() {
           type="text"
           name="createdAt"
           placeholder="20xx-0x-0x"
-          value={dateStr}
+          defaultValue={dateStr}
         />
         <textarea name="content" placeholder="내용" required></textarea>
 
