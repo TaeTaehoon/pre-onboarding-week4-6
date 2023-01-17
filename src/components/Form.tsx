@@ -1,34 +1,80 @@
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import { AppDispatch } from "../redux/configureStore";
+
+import { submitForm, postComment } from "../redux/slices/mainSlice";
 
 function Form() {
-  const dateArr = new Intl.DateTimeFormat("ko-KR")
+  const dateStr = new Intl.DateTimeFormat("ko-KR")
     .formatToParts(Date.now())
-    .filter((el) => !el.value.includes("."));
-  const dateStr = dateArr
+    .filter((el) => !el.value.includes("."))
     .map((el) => (Number(el.value) < 10 ? "0" + el.value : el.value))
     .join("-");
+  const [userInput, setUserInput] = useState<submitForm>({
+    profile_url: "",
+    author: "",
+    content: "",
+    createdAt: dateStr,
+  });
+
+  const dispatch: AppDispatch = useDispatch();
+  const userInputHandler = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    e.preventDefault();
+    console.log(e.target.value);
+    setUserInput({ ...userInput, [e.target.name]: e.target.value });
+  };
+
+  const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    dispatch(postComment(userInput));
+    setUserInput({
+      profile_url: "",
+      author: "",
+      content: "",
+      createdAt: dateStr,
+    });
+  };
+  console.log(userInput);
   return (
     <StFormBody>
-      <form>
+      <form onSubmit={submitFormHandler}>
         <div className="form-head-group">
           <input
             type="text"
             name="profile_url"
             placeholder="https://picsum.photos/id/1/50/50"
+            value={userInput.profile_url}
+            onChange={userInputHandler}
             required
           />
 
-          <input type="text" name="author" placeholder="작성자" />
+          <input
+            type="text"
+            name="author"
+            value={userInput.author}
+            placeholder="작성자"
+            onChange={userInputHandler}
+          />
         </div>
         <input
           type="text"
           name="createdAt"
           placeholder="20xx-0x-0x"
           defaultValue={dateStr}
+          onChange={userInputHandler}
         />
-        <textarea name="content" placeholder="내용" required></textarea>
+        <textarea
+          name="content"
+          placeholder="내용"
+          value={userInput.content}
+          onChange={userInputHandler}
+          required
+        ></textarea>
 
-        <button type="submit">등록</button>
+        <button>등록</button>
       </form>
     </StFormBody>
   );

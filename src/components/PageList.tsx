@@ -1,4 +1,4 @@
-import { useDispatch } from "react-redux";
+import { shallowEqual, useDispatch } from "react-redux";
 import styled from "styled-components";
 
 import {
@@ -6,18 +6,23 @@ import {
   getFullCommentsLength,
 } from "../redux/slices/mainSlice";
 import { AppDispatch } from "../redux/configureStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { initType } from "../redux/slices/mainSlice";
 
 function PageList() {
   const dispatch: AppDispatch = useDispatch();
   const pageNum = useSelector((state: initType) => state.mainSlice.pages);
-  const currPage = useSelector((state: initType) => state.mainSlice.currPage);
+  const dbNum = useSelector((state: initType) => state.mainSlice.currPage);
+  const [currPage, setCurrPage] = useState<number>(1);
+  //useSelector로 가져온 데이터가 업데이트될때 useEffect가 실행이안됨,,,왜이러지?
   useEffect(() => {
-    dispatch(getFullCommentsLength(1));
-    dispatch(getCommentsInPage(1));
-  }, [dispatch]);
+    setCurrPage(dbNum);
+  }, [dbNum]);
+  useEffect(() => {
+    dispatch(getFullCommentsLength(currPage));
+    dispatch(getCommentsInPage(currPage));
+  }, [currPage]);
 
   return (
     <StListContainer>
@@ -26,9 +31,8 @@ function PageList() {
           return (
             <Page
               key={`page${num}`}
-              active={false}
               onClick={() => {
-                dispatch(getCommentsInPage(num));
+                setCurrPage(num);
               }}
               className="active-page"
             >
@@ -39,9 +43,8 @@ function PageList() {
           return (
             <Page
               key={`page${num}`}
-              active={false}
               onClick={() => {
-                dispatch(getCommentsInPage(num));
+                setCurrPage(num);
               }}
             >
               {num}
@@ -62,19 +65,13 @@ const StListContainer = styled.div`
   }
 `;
 
-const Page = styled.button<{ active: boolean }>`
+const Page = styled.button`
   font-size: 1rem;
   line-height: 1.5;
   padding: 0.375rem 0.75rem;
   margin-top: 2rem;
   margin-right: 3px;
   border: 1px solid lightgray;
-  ${({ active }) =>
-    active &&
-    `
-    background: gray;
-    color: #fff;
-    `}
   border-radius: 0.25rem;
 `;
 

@@ -4,6 +4,12 @@ import axios from "axios";
 const URI = {
   BASE: process.env.REACT_APP_BASE_URI,
 };
+export interface submitForm {
+  profile_url: string;
+  author: string;
+  content: string;
+  createdAt: string;
+}
 
 export interface comment {
   id: number;
@@ -67,7 +73,7 @@ export const getCommentsInPage = createAsyncThunk<
   {
     rejectValue: any;
   }
->("main/getCommentsByDB", async (pageNum, thunkAPI) => {
+>("mainSlice/getCommentsByDB", async (pageNum, thunkAPI) => {
   try {
     const res = await axios.get(
       `http://localhost:4000/comments?_page=${pageNum}&_limit=4&_order=desc&_sort=id`
@@ -78,13 +84,51 @@ export const getCommentsInPage = createAsyncThunk<
   }
 });
 
+export const postComment = createAsyncThunk<
+  any,
+  submitForm,
+  {
+    rejectValue: any;
+  }
+>("mainSlice/postComment", async (comment, thunkAPI) => {
+  try {
+    console.log(comment);
+    const res = await axios.post("http://localhost:4000/comments", comment);
+    return thunkAPI.fulfillWithValue(res.data);
+  } catch (error) {
+    console.log(error);
+    return thunkAPI.rejectWithValue(error);
+  }
+});
+
+export const deleteComment = createAsyncThunk<
+  any,
+  number,
+  {
+    rejectValue: any;
+  }
+>("mainSlice/deleteComment", async (commentId, thunkAPI) => {
+  try {
+    const res = await axios.delete(
+      `http://localhost:4000/comments/${commentId}`
+    );
+    return thunkAPI.fulfillWithValue(res.data);
+  } catch (error) {
+    console.log(error);
+    return thunkAPI.rejectWithValue(error);
+  }
+});
+
 const mainSlice = createSlice({
   name: "mainSlice",
   initialState,
   reducers: {},
   extraReducers(builder) {
     builder
-      .addCase(getFullCommentsLength.pending, (state, action) => {})
+      // comments 전체 길이를 통한 페이지 수 계산
+      .addCase(getFullCommentsLength.pending, (state, action) => {
+        state.pages = [1];
+      })
       .addCase(getFullCommentsLength.fulfilled, (state, action) => {
         const maxPage = Math.ceil(action.payload / 4);
         for (let i = 2; i <= maxPage; i++) {
@@ -92,27 +136,26 @@ const mainSlice = createSlice({
         }
       })
       .addCase(getFullCommentsLength.rejected, (state, action) => {})
+      // page별 comments read
       .addCase(getCommentsInPage.pending, (state, action) => {})
       .addCase(getCommentsInPage.fulfilled, (state, action) => {
-        console.log(action.payload.currPage);
         state.comments = action.payload.comments;
         state.currPage = action.payload.currPage;
       })
-      .addCase(getCommentsInPage.rejected, (state, action) => {});
+      .addCase(getCommentsInPage.rejected, (state, action) => {})
+      // comment post to DB
+      .addCase(postComment.pending, (state, action) => {})
+      .addCase(postComment.fulfilled, (state, action) => {
+        state.currPage = 1;
+      })
+      .addCase(postComment.rejected, (state, action) => {})
+      // delete comment from DB
+      .addCase(deleteComment.pending, (state, action) => {})
+      .addCase(deleteComment.fulfilled, (state, action) => {
+        state.currPage = 1;
+      })
+      .addCase(deleteComment.rejected, (state, action) => {});
   },
-  // extraReducers: {
-  //   [getFullCommentsLength.pending]: (state, action) => {
-  //     state.isLoading = true;
-  //   },
-  //   [getFullCommentsLength.fulfilled]: (state, action) => {
-  //     state.isLoading = false;
-  //     state.brands.push(...action.payload);
-  //   },
-  //   [getFullCommentsLength.rejected]: (state, action) => {
-  //     state.isLoading = false;
-  //     state.err = action.payload;
-  //   },
-  // },
 });
 
 export default mainSlice.reducer;
