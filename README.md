@@ -1,46 +1,14 @@
-# Getting Started with Create React App
+## view 특징
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### index.css
+- UI 설정 시 편의를 위해 html 전체 font-size를 10px로 설정하여 해당 서비스에서의 rem property의 기준값을 10px로 변경 ( 원래 1rem = 16px) [index.css]
 
-## Available Scripts
+### App.tsx
+- App 전체 container의 max-width를 1280px로 설정.
 
-In the project directory, you can run:
+### Form.tsx
+- comment add part에서 createdAt input은 자동으로 Date.now()에 기반하여 현재 날짜가 입력되도록 설정, Date format의 경우 Intl-'ko-KR'로 설정함. 추가적으로 Intl-'ko-KR'의 경우 기본적으로 ' . '으로 date를 구분하지만 map함수를 이용하여 구분자를 ' - ' 로 변경함.
+- 기본 form에서 의미없이 위아래로만 정렬되어있는 부분을 flex-box property를 이용하여 임의로 정렬
 
-### `yarn start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+### CommentList.tsx
+- 기존 hr tag를 이용해서 구현되어 있던 구분선 삭제, 후에 border를 이용하여 첫 comment에만 border-top 적용, 그외에는 border-bottom을 이용해서 구분선 구현
