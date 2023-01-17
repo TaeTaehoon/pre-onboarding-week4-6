@@ -1,17 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { AppDispatch } from "../redux/configureStore";
 
-import { submitForm, postComment } from "../redux/slices/mainSlice";
-
+import {
+  submitForm,
+  postComment,
+  updateComment,
+} from "../redux/slices/mainSlice";
+import { comment } from "../redux/slices/mainSlice";
+import { RootState } from "../redux/configureStore";
 function Form() {
   const dateStr = new Intl.DateTimeFormat("ko-KR")
     .formatToParts(Date.now())
     .filter((el) => !el.value.includes("."))
     .map((el) => (Number(el.value) < 10 ? "0" + el.value : el.value))
     .join("-");
-  const [userInput, setUserInput] = useState<submitForm>({
+  const editContents = useSelector(
+    (state: RootState) => state.mainSlice.editContents
+  );
+  const [userInput, setUserInput] = useState<comment>({
+    id: -1,
     profile_url: "",
     author: "",
     content: "",
@@ -29,14 +39,23 @@ function Form() {
 
   const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(postComment(userInput));
+    if (userInput.id === -1) {
+      dispatch(postComment(userInput));
+    } else {
+      dispatch(updateComment(userInput));
+    }
+
     setUserInput({
+      id: -1,
       profile_url: "",
       author: "",
       content: "",
       createdAt: dateStr,
     });
   };
+  useEffect(() => {
+    setUserInput({ ...userInput, ...editContents });
+  }, [editContents?.id]);
   console.log(userInput);
   return (
     <StFormBody>

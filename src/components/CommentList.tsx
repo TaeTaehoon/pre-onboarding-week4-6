@@ -4,10 +4,17 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { AppDispatch } from "../redux/configureStore";
 
-import { initType, comment, deleteComment } from "../redux/slices/mainSlice";
+import {
+  initType,
+  comment,
+  deleteComment,
+  updateEditContents,
+} from "../redux/slices/mainSlice";
+
+import { RootState } from "../redux/configureStore";
 
 function CommentList() {
-  const comments = useSelector((state: initType) => state.mainSlice.comments);
+  const comments = useSelector((state: RootState) => state.mainSlice.comments);
   const dispatch: AppDispatch = useDispatch();
 
   return (
@@ -23,7 +30,13 @@ function CommentList() {
           <StContent>{comment.content}</StContent>
 
           <StButton>
-            <a>수정</a>
+            <a
+              onClick={() => {
+                dispatch(updateEditContents(comment));
+              }}
+            >
+              수정
+            </a>
             <a
               onClick={() => {
                 dispatch(deleteComment(comment.id));

@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { stat } from "fs";
 
 const URI = {
   BASE: process.env.REACT_APP_BASE_URI,
@@ -22,6 +23,7 @@ export interface comment {
 export interface initType {
   [x: string]: any;
   comments: comment[];
+  editContents: comment;
   pages: number[];
   currPage: number;
 }
@@ -29,21 +31,21 @@ export interface initType {
 const initialState = {
   comments: [
     {
-      id: 1,
-      profile_url: "https://picsum.photos/id/1/50/50",
-      author: "abc_1",
-      content: "UI 테스트는 어떻게 진행하나요",
-      createdAt: "2020-05-01",
-    },
-    {
-      id: 2,
-      profile_url: "https://picsum.photos/id/1/50/50",
-      author: "abc_1",
-      content: "UI 테스트는 어떻게 dsfsdf나요",
-      createdAt: "2020-05-01",
+      id: -1,
+      profile_url: "",
+      author: "",
+      content: "",
+      createdAt: "",
     },
   ],
   pages: [1],
+  editContents: {
+    id: -1,
+    profile_url: "",
+    author: "",
+    content: "",
+    createdAt: "",
+  },
   currPage: 1,
 };
 
@@ -86,14 +88,15 @@ export const getCommentsInPage = createAsyncThunk<
 
 export const postComment = createAsyncThunk<
   any,
-  submitForm,
+  comment,
   {
     rejectValue: any;
   }
 >("mainSlice/postComment", async (comment, thunkAPI) => {
   try {
-    console.log(comment);
-    const res = await axios.post("http://localhost:4000/comments", comment);
+    const contents: { id?: number } = comment;
+    delete contents.id;
+    const res = await axios.post("http://localhost:4000/comments", contents);
     return thunkAPI.fulfillWithValue(res.data);
   } catch (error) {
     console.log(error);
@@ -119,10 +122,33 @@ export const deleteComment = createAsyncThunk<
   }
 });
 
+export const updateComment = createAsyncThunk<
+  any,
+  comment,
+  {
+    rejectValue: any;
+  }
+>("mainSlice/updateComment", async (payload, thunkAPI) => {
+  try {
+    const res = await axios.put(
+      `http://localhost:4000/comments/${payload.id}`,
+      payload
+    );
+    return thunkAPI.fulfillWithValue(res.data);
+  } catch (error) {
+    console.log(error);
+    return thunkAPI.rejectWithValue(error);
+  }
+});
+
 const mainSlice = createSlice({
   name: "mainSlice",
   initialState,
-  reducers: {},
+  reducers: {
+    updateEditContents: (state, action) => {
+      state.editContents = { ...state.editContents, ...action.payload };
+    },
+  },
   extraReducers(builder) {
     builder
       // comments 전체 길이를 통한 페이지 수 계산
@@ -154,8 +180,21 @@ const mainSlice = createSlice({
       .addCase(deleteComment.fulfilled, (state, action) => {
         state.currPage = 1;
       })
-      .addCase(deleteComment.rejected, (state, action) => {});
+      .addCase(deleteComment.rejected, (state, action) => {})
+      // update comment content from DB
+      .addCase(updateComment.pending, (state, action) => {})
+      .addCase(updateComment.fulfilled, (state, action) => {
+        console.log(action.payload);
+        state.comments = state.comments.map((comment) => {
+          return comment.id === action.payload.id
+            ? (comment = { ...comment, ...action.payload })
+            : comment;
+        });
+      })
+      .addCase(updateComment.rejected, (state, action) => {});
   },
 });
+
+export const { updateEditContents } = mainSlice.actions;
 
 export default mainSlice.reducer;

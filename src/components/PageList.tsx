@@ -8,17 +8,13 @@ import {
 import { AppDispatch } from "../redux/configureStore";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { initType } from "../redux/slices/mainSlice";
+import { RootState } from "../redux/configureStore";
 
 function PageList() {
   const dispatch: AppDispatch = useDispatch();
-  const pageNum = useSelector((state: initType) => state.mainSlice.pages);
-  const dbNum = useSelector((state: initType) => state.mainSlice.currPage);
-  const [currPage, setCurrPage] = useState<number>(1);
+  const pageNum = useSelector((state: RootState) => state.mainSlice.pages);
+  const currPage = useSelector((state: RootState) => state.mainSlice.currPage);
   //useSelector로 가져온 데이터가 업데이트될때 useEffect가 실행이안됨,,,왜이러지?
-  useEffect(() => {
-    setCurrPage(dbNum);
-  }, [dbNum]);
   useEffect(() => {
     dispatch(getFullCommentsLength(currPage));
     dispatch(getCommentsInPage(currPage));
@@ -32,7 +28,7 @@ function PageList() {
             <Page
               key={`page${num}`}
               onClick={() => {
-                setCurrPage(num);
+                dispatch(getCommentsInPage(num));
               }}
               className="active-page"
             >
@@ -44,7 +40,7 @@ function PageList() {
             <Page
               key={`page${num}`}
               onClick={() => {
-                setCurrPage(num);
+                dispatch(getCommentsInPage(num));
               }}
             >
               {num}
